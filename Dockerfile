@@ -1,7 +1,4 @@
-FROM ich777/debian-baseimage
-
-LABEL org.opencontainers.image.authors="admin@minenet.at"
-LABEL org.opencontainers.image.source="https://github.com/ich777/docker-openvpn-client"
+FROM debian:latest
 
 # Install openvpn
 RUN apt-get update && \
@@ -11,14 +8,20 @@ RUN apt-get update && \
 
 RUN useradd -s /bin/bash vpn
 
-ADD /scripts/ /opt/scripts/
-RUN chmod -R 770 /opt/scripts/
+COPY /scripts /opt/scripts
+RUN ls -al /opt/scripts
+
+# Convert the line endings of the start.sh script
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix /opt/scripts/start.sh && chmod +x /opt/scripts/start.sh
+RUN dos2unix /opt/scripts/start-server.sh && chmod +x /opt/scripts/start-server.sh
 
 ENV INTERFACE="eth0"
 ENV UID=99
 ENV GID=100
 ENV DATA_PERM=770
 ENV DATA_DIR=/vpn
+ENV RANDOM_VPN_CONFIG=true
 
 VOLUME ["/vpn"]
 

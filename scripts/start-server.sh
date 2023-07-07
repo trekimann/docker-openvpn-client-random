@@ -301,15 +301,45 @@ The 'command' (if provided and valid) will be run instead of openvpn
     exit $RC
 }
 
+# randomly pickvpn config
+get_vpn_config_path() {
+    local defaultVpnConfigFile="$dir/vpn.conf"
+    local vpnConfigsDir="$dir/configs"
+    
+    # If RANDOM_VPN_CONFIG is not set or set to true, use a random configuration
+    # Else, use the default 'vpn.conf' configuration
+    if [[ "$RANDOM_VPN_CONFIG" != "false" ]]; then
+        # Ensuring that the directory is not empty
+        if [ -z "$(ls -A $vpnConfigsDir)" ]; then
+            echo "No OpenVPN Configurations found in ${vpnConfigsDir}. Using the Default Configuration."
+            echo "Default OpenVPN Configuration Used: 'vpn.conf'"
+            echo "$defaultVpnConfigFile"
+        else
+            # Select a random VPN configuration
+            local randomConfigFile=$(ls $vpnConfigsDir | sort -R | tail -1)
+            local randomConfigPath="$vpnConfigsDir/$randomConfigFile"
+            echo "Random OpenVPN Configuration Selected: $randomConfigFile"
+            echo "$randomConfigPath"
+        fi
+    else
+        echo "$defaultVpnConfigFile"
+    fi
+}
+
 dir="/vpn"
 auth="$dir/vpn.auth"
 cert_auth="$dir/vpn.cert_auth"
-conf="$dir/vpn.conf"
+conf=$(get_vpn_config_path)
 cert="$dir/vpn-ca.crt"
 firewall_cust="$dir/.firewall_cust"
 route="$dir/.firewall"
 route6="$dir/.firewall6"
 export ext_args="--script-security 2 --redirect-gateway def1"
+
+echo "conf: $conf"
+echo "cert: $cert"
+echo "dir: $dir"
+
 [[ -f $conf ]] || { [[ $(ls -d $dir/*|egrep '\.(conf|ovpn)$' 2>/dev/null|wc -w) -eq 1 \
             ]] && conf="$(ls -d $dir/* | egrep '\.(conf|ovpn)$' 2>/dev/null)"; }
 [[ -f $cert ]] || { [[ $(ls -d $dir/* | egrep '\.ce?rt$' 2>/dev/null | wc -w) -eq 1 \
