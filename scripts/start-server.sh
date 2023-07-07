@@ -311,14 +311,14 @@ get_vpn_config_path() {
     if [[ "$RANDOM_VPN_CONFIG" != "false" ]]; then
         # Ensuring that the directory is not empty
         if [ -z "$(ls -A $vpnConfigsDir)" ]; then
-            echo "No OpenVPN Configurations found in ${vpnConfigsDir}. Using the Default Configuration."
-            echo "Default OpenVPN Configuration Used: 'vpn.conf'"
+            # echo "No OpenVPN Configurations found in ${vpnConfigsDir}. Using the Default Configuration."
+            # echo "Default OpenVPN Configuration Used: 'vpn.conf'"
             echo "$defaultVpnConfigFile"
         else
             # Select a random VPN configuration
             local randomConfigFile=$(ls $vpnConfigsDir | sort -R | tail -1)
             local randomConfigPath="$vpnConfigsDir/$randomConfigFile"
-            echo "Random OpenVPN Configuration Selected: $randomConfigFile"
+            # echo "Random OpenVPN Configuration Selected: $randomConfigFile"
             echo "$randomConfigPath"
         fi
     else
